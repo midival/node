@@ -1,0 +1,23 @@
+{
+  "name": "@midival/node",
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "repository": "git@github.com:midival/node.git",
+  "author": "Kacper Kula <kulak@kulak.at>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^16.3.3",
+    "midi": "^2.0.0",
+    "typescript": "^4.3.5"
+  },
+  "scripts": {
+    "compile": "tsc",
+    "test": "echo 'No tests yet'",
+    "docs": "typedoc",
+    "deploy": "gh-pages -d docs"
+  },
+  "dependencies": {
+    "@midival/core": "^0.0.13",
+    "typedoc": "^0.21.4"
+  }
+}
