@@ -17,7 +17,7 @@
   "scripts": {
     "compile": "rollup -c",
     "test": "echo 'No tests yet'",
-    "docs": "typedoc",
+    "docs": "typedoc --ignoreCompilerErrors",
     "deploy": "gh-pages -d docs"
   },
   "dependencies": {
