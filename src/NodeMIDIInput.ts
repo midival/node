@@ -1,8 +1,6 @@
 import { IMIDIInput } from "@midival/core";
+import { NodeMIDIAccess } from "./NodeMIDIAccess";
 import { OnMessageCallback, UnregisterCallback } from "@midival/core/dist/wrappers/inputs/IMIDIInput";
-
-import midi = require("midi");
-
 
 export class NodeMIDIInput implements IMIDIInput {
 
@@ -11,7 +9,7 @@ export class NodeMIDIInput implements IMIDIInput {
 
     constructor(id: number) {
         this._id = id;
-        this._input = new midi.Input();
+        this._input = new (NodeMIDIAccess.getMidiLibrary()).Input();
         this._input.openPort(this._id);
     }
 

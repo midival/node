@@ -1,6 +1,5 @@
 import { IMIDIOutput } from "@midival/core";
-
-const midi = require("midi");
+import { NodeMIDIAccess } from "./NodeMIDIAccess";
 
 export class NodeMIDIOutput implements IMIDIOutput {
     private _id: number;
@@ -8,7 +7,7 @@ export class NodeMIDIOutput implements IMIDIOutput {
 
     constructor(id: number) {
         this._id = id;
-        this._output = new midi.Output();
+        this._output = new (NodeMIDIAccess.getMidiLibrary()).Output();
         this._output.openPort(this._id);
     }
     send(data: Uint8Array | number[]): void {

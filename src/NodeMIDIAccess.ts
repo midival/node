@@ -3,11 +3,20 @@ import { InputStateChangeCallback, OutputStateChangeCallback } from "@midival/co
 import { NodeMIDIInput } from "./NodeMIDIInput";
 import {NodeMIDIOutput} from "./NodeMIDIOutput";
 
-const midi = require('midi');
-
 const range = (i) => Array.apply(null, Array(i)).map(function (_, i) {return i;});
 
 class NodeMIDIAccess implements IMIDIAccess {
+
+    private static _midi: any;
+
+    static getMidiLibrary() {
+        return this._midi;
+    }
+
+    constructor(midi) {
+        NodeMIDIAccess._midi = midi;
+    }
+
     onInputConnected(callback: InputStateChangeCallback): UnregisterCallback {
         throw new Error("Method not implemented.");
     }
@@ -26,15 +35,14 @@ class NodeMIDIAccess implements IMIDIAccess {
     }
     
     get inputs() {
-        const inputs = new midi.Input()
+        const inputs = new (NodeMIDIAccess.getMidiLibrary()).Input()
         const inputsNo = inputs.getPortCount();
 
         return range(inputsNo).map((i: number) => new NodeMIDIInput(i));
     }
 
     get outputs() {
-        console.log("o", midi.Output);
-        const outputs = new midi.Output();
+        const outputs = new (NodeMIDIAccess.getMidiLibrary()).Output();
         const outputsNo = outputs.getPortCount();
         return range(outputsNo).map((i: number) => new NodeMIDIOutput(i));
     }
