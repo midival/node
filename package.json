@@ -1,23 +1,20 @@
 {
   "name": "@midival/node",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "main": "dist/index.js",
   "repository": "git@github.com:midival/node.git",
   "author": "Kacper Kula <kulak@kulak.at>",
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^16.3.3",
-    "rollup": "^2.53.2",
-    "rollup-plugin-typescript2": "^0.30.0",
-    "typescript": "^4.3.5",
-    "tslib": "^2.3.0",
-    "typedoc": "^0.21.4"
+    "typedoc": "^0.21.4",
+    "typescript": "^4.3.5"
   },
   "peerDependencies": {
     "midi": "^2.0.0"
   },
   "scripts": {
-    "compile": "rollup -c",
+    "compile": "tsc",
     "test": "echo 'No tests yet'",
     "docs": "typedoc",
     "deploy": "gh-pages -d docs"
