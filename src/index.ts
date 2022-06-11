@@ -1,5 +1,3 @@
-const NodeMIDIAccess = require("./NodeMIDIAccess")
-const NodeMIDIInput = require("./NodeMIDIInput");
-const NodeMIDIOutput = require("./NodeMIDIOutput");
+import { NodeMIDIAccess } from "./NodeMIDIAccess";
 
-module.exports = NodeMIDIAccess;
+export { NodeMIDIAccess };
