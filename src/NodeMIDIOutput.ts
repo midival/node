@@ -1,14 +1,15 @@
 import { IMIDIOutput } from "@midival/core";
-import { NodeMIDIAccess } from "./NodeMIDIAccess";
+import type { Output } from "midi";
 
 export class NodeMIDIOutput implements IMIDIOutput {
-    private _id: number;
-    private _output;
+    private _id: string;
+    private _name: string;
+    private _output: Output;
 
-    constructor(id: number) {
+    constructor(id: string, name: string, output: Output) {
         this._id = id;
-        this._output = new (NodeMIDIAccess.getMidiLibrary()).Output();
-        this._output.openPort(this._id);
+        this._name = name;
+        this._output = output;
     }
     send(data: Uint8Array | number[]): void {
         console.log(this._output);
@@ -20,8 +21,10 @@ export class NodeMIDIOutput implements IMIDIOutput {
     }
 
     get name(): string {
-        return this._output.getPortName(this._id);
+        return this._name;
     }
 
-    
+    get manufacturer(): string {
+        return "Unknown";
+    }
 }

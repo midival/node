@@ -1,18 +1,20 @@
 import { IMIDIInput } from "@midival/core";
 import { NodeMIDIAccess } from "./NodeMIDIAccess";
-import { OnMessageCallback, UnregisterCallback } from "@midival/core/dist/wrappers/inputs/IMIDIInput";
+import { OnMessageCallback } from "@midival/core/dist/wrappers/inputs/IMIDIInput";
+import { UnregisterCallback } from "@midival/core";
+import type { Input } from "midi";
 
 export class NodeMIDIInput implements IMIDIInput {
 
-    private _id: number;
-    private _input;
+    private _id: string;
+    private _input: Input;
+    private _name: string;
 
-    constructor(id: number) {
+    constructor(id: string, name: string, input: Input) {
         this._id = id;
-        this._input = new (NodeMIDIAccess.getMidiLibrary()).Input();
-        this._input.openPort(this._id);
+        this._name = name;
+        this._input = input;
     }
-
 
     async onMessage(callback: OnMessageCallback): Promise<UnregisterCallback> {
         let isActive = true;
@@ -23,7 +25,7 @@ export class NodeMIDIInput implements IMIDIInput {
             // FIXME: delta time should get recomputed to the actual time.
             callback({
                 receivedTime: deltaTime,
-                data: message,
+                data: Uint8Array.from(message),
             });
         });
 
@@ -37,8 +39,10 @@ export class NodeMIDIInput implements IMIDIInput {
     }
 
     get name(): string {
-        return this._input.getPortName(this._id);
+        return this._name;
     }
 
-    
+    get manufacturer(): string {
+        return "Unknown";
+    }
 }

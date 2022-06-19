@@ -1,23 +1,31 @@
 {
   "name": "@midival/node",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "main": "dist/index.js",
   "repository": "git@github.com:midival/node.git",
   "author": "Kacper Kula <kulak@kulak.at>",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^16.3.3",
-    "typedoc": "^0.21.4",
-    "typescript": "^4.3.5"
+    "@midival/core": "^0.0.17",
+    "@types/jest": "^28.1.1",
+    "@types/midi": "^2.0.0",
+    "@types/node": "^17.0.42",
+    "jest": "^28.1.1",
+    "ts-jest": "^28.0.5",
+    "typedoc": "^0.22.17",
+    "typescript": "^4.7.3"
   },
-  "peerDependencies": {},
+  "peerDependencies": {
+    "@midival/core": "^0.0.17",
+    "midi": "^2.0.0"
+  },
   "scripts": {
     "compile": "tsc",
-    "test": "echo 'No tests yet'",
+    "test": "jest",
     "docs": "typedoc",
     "deploy": "gh-pages -d docs"
   },
   "dependencies": {
-    "@midival/core": "^0.0.13"
+    "@hypersphere/omnibus": "^0.0.6"
   }
 }
