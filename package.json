@@ -16,7 +16,7 @@
     "typescript": "^5.3.3"
   },
   "peerDependencies": {
-    "@midival/core": "^0.0.17",
+    "@midival/core": "^0.0.17 || ^0.1.0",
     "midi": "^2.0.0"
   },
   "scripts": {
