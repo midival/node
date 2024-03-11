@@ -1,11 +1,10 @@
 import { MIDIVal } from "@midival/core";
 import {NodeMIDIAccess} from "../src/index";
-import * as midi from "midi";
 
 import { version as versionMidivalCore } from "@midival/core/package.json";
 import { version as versionMidivalNode } from "../package.json";
 
-const nodeAccess = new NodeMIDIAccess(midi, {
+const nodeAccess = new NodeMIDIAccess({
     watchTimeout: 1000,
 });
 console.log("------------------------");
@@ -21,9 +20,9 @@ MIDIVal.connect()
         console.log("[    output     ]", `${device.name} (${device.id})`);
     });
 
-    setTimeout(() => {
-        nodeAccess.createVirtualOutputPort("HELLO WORLD");
-    }, 1200);
+    // setTimeout(() => {
+    //     // nodeAccess.createVirtualOutputPort("HELLO WORLD");
+    // }, 1200);
 });
 
 MIDIVal.onOutputDeviceConnected(device => {

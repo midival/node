@@ -14,6 +14,7 @@ import { NodeMIDIOutput } from "./NodeMIDIOutput";
 import { VirtualNodeMIDIInput } from "./VirtualNodeMIDIInput";
 import { VirtualNodeMIDIOutput } from "./VirtualNodeMIDIOutput";
 import { randomUUID } from "crypto";
+import jzz = require("jzz");
 
 const range = (i: number) =>
   Array.apply(null, Array(i)).map(function (_, i) {
@@ -57,40 +58,40 @@ class NodeMIDIAccess implements IMIDIAccess {
     return this._midi;
   }
 
-  constructor(midi: any, options: NodeMidiOptions = defaultOptions) {
-    NodeMIDIAccess._midi = midi;
+  constructor(options: NodeMidiOptions = defaultOptions) {
+    NodeMIDIAccess._midi = jzz();
     this._options = options;
   }
 
-  private watchInputs() {
-    if (this.isWatchingInputs) {
-      return;
-    }
-    if (!this._options.watchTimeout) {
-      return;
-    }
-    this.isWatchingInputs = true;
-    let prevInputs = this.inputs;
-    const checkChanges = () => {
-      const inputs = this.inputs;
-      inputs.forEach((input) => {
-        const pastInput = prevInputs.find((pIn) => pIn.name === input.name);
-        if (!pastInput) {
-          this._bus.trigger("input_connected", input);
-        }
-      });
-      prevInputs.forEach((prevIn, idx) => {
-        const newInp = inputs.find((nIn) => nIn.name === prevIn.name);
-        if (!newInp) {
-          this._bus.trigger("input_disconnected", prevIn);
-          this.midiInputs.delete(prevIn.name);
-        }
-      });
-      prevInputs = this.inputs;
-      setTimeout(checkChanges, this._options.watchTimeout);
-    };
-    setTimeout(checkChanges, this._options.watchTimeout);
-  }
+  // private watchInputs() {
+  //   if (this.isWatchingInputs) {
+  //     return;
+  //   }
+  //   if (!this._options.watchTimeout) {
+  //     return;
+  //   }
+  //   this.isWatchingInputs = true;
+  //   let prevInputs = this.inputs;
+  //   const checkChanges = () => {
+  //     const inputs = this.inputs;
+  //     inputs.forEach((input) => {
+  //       const pastInput = prevInputs.find((pIn) => pIn.name === input.name);
+  //       if (!pastInput) {
+  //         this._bus.trigger("input_connected", input);
+  //       }
+  //     });
+  //     prevInputs.forEach((prevIn, idx) => {
+  //       const newInp = inputs.find((nIn) => nIn.name === prevIn.name);
+  //       if (!newInp) {
+  //         this._bus.trigger("input_disconnected", prevIn);
+  //         this.midiInputs.delete(prevIn.name);
+  //       }
+  //     });
+  //     prevInputs = this.inputs;
+  //     setTimeout(checkChanges, this._options.watchTimeout);
+  //   };
+  //   setTimeout(checkChanges, this._options.watchTimeout);
+  // }
 
   private watchOutputs() {
     if (this.isWatchingOutputs) {
@@ -125,12 +126,12 @@ class NodeMIDIAccess implements IMIDIAccess {
     setTimeout(checkChanges, this._options.watchTimeout);
   }
 
-  onInputConnected(callback): UnregisterCallback {
-    this.watchInputs();
+  onInputConnected(callback: any): UnregisterCallback {
+    // this.watchInputs();
     return this._bus.on("input_connected", callback);
   }
-  onInputDisconnected(callback): UnregisterCallback {
-    this.watchInputs();
+  onInputDisconnected(callback: any): UnregisterCallback {
+    // this.watchInputs();
     return this._bus.on("input_disconnected", callback);
   }
   onOutputConnected(callback): UnregisterCallback {
@@ -144,7 +145,11 @@ class NodeMIDIAccess implements IMIDIAccess {
     return this._bus.on("output_disconnected", callback);
   }
 
-  connect(): Promise<void> {
+  async connect(): Promise<void> {
+    const data = jzz.info()
+    console.log(data)
+     
+    console.log('DATA', data)
     return Promise.resolve();
   }
   createVirtualInputPort(name: string): VirtualNodeMIDIInput {
@@ -169,45 +174,16 @@ class NodeMIDIAccess implements IMIDIAccess {
     return output;
   }
 
-  get inputs(): NodeMIDIInput[] {
-    const inputs = new (NodeMIDIAccess.getMidiLibrary().Input)();
-    const inputsNo = inputs.getPortCount();
-
-    return [
-      ...range(inputsNo).map((i: number) => {
-        const name = inputs.getPortName(i);
-        if (!this.midiInputs.has(name)) {
-          const input = new (NodeMIDIAccess.getMidiLibrary().Input)();
-          input.openPort(i);
-          this.midiInputs.set(
-            name,
-            new NodeMIDIInput(randomUUID(), name, input)
-          );
-        }
-        return this.midiInputs.get(name);
-      }),
-      ...this.virtualInputs,
-    ];
+  get inputs(): IMIDIInput[] {
+    const { inputs } = jzz.info()
+    return inputs
+      .map(({ id, name, manufacturer }) => new NodeMIDIInput(id, name, manufacturer))
   }
 
   get outputs(): NodeMIDIOutput[] {
-    const outputs = new (NodeMIDIAccess.getMidiLibrary().Output)();
-    const outputsNo = outputs.getPortCount();
-    return [
-      ...range(outputsNo).map((i: number) => {
-        const name = outputs.getPortName(i);
-        if (!this.midiOutputs.has(name)) {
-          const output = new (NodeMIDIAccess.getMidiLibrary().Output)();
-          output.openPort(i);
-          this.midiOutputs.set(
-            name,
-            new NodeMIDIOutput(randomUUID(), name, output)
-          );
-        }
-        return this.midiOutputs.get(name);
-      }),
-      ...this.virtualOutputs,
-    ];
+    const { outputs } = jzz.info()
+    return outputs
+      .map(({ id, name, manufacturer }) => new NodeMIDIOutput(id, name, manufacturer))
   }
 }
 

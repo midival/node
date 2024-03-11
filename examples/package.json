@@ -5,8 +5,7 @@
   "license": "MIT",
   "dependencies": {
     "@midival/core": "^0.0.17",
-    "@midival/node": "^0.0.5",
-    "midi": "^2.0.0"
+    "@midival/node": "^0.0.5"
   },
   "devDependencies": {
     "ts-node": "^10.8.1"
