@@ -9,13 +9,7 @@ import { NodeMIDIInput } from "./NodeMIDIInput";
 import { NodeMIDIOutput } from "./NodeMIDIOutput";
 import { VirtualNodeMIDIInput } from "./VirtualNodeMIDIInput";
 import { VirtualNodeMIDIOutput } from "./VirtualNodeMIDIOutput";
-import { randomUUID } from "crypto";
 import jzz = require("jzz");
-
-const range = (i: number) =>
-  Array.apply(null, Array(i)).map(function (_, i) {
-    return i;
-  });
 
 export interface NodeMidiOptions {
   watchTimeout: number;
@@ -50,12 +44,14 @@ class NodeMIDIAccess implements IMIDIAccess {
   private isWatchingInputs: boolean = false;
   private isWatchingOutputs: boolean = false;
 
+  private midi: ReturnType<typeof jzz>
   static getMidiLibrary() {
     return this._midi;
   }
 
   constructor(options: NodeMidiOptions = defaultOptions) {
-    NodeMIDIAccess._midi = jzz();
+    this.midi = jzz();
+    NodeMIDIAccess._midi = this.midi
     this._options = options;
   }
 
@@ -99,6 +95,7 @@ class NodeMIDIAccess implements IMIDIAccess {
     this.isWatchingOutputs = true;
     let prevOutputs = this.outputs;
     const checkChanges = () => {
+      this.midi.refresh()
       const outputs = this.outputs;
       outputs.forEach((output, idx) => {
         const pastOutput = prevOutputs.find((pIn) => pIn.name === output.name);
@@ -143,9 +140,6 @@ class NodeMIDIAccess implements IMIDIAccess {
 
   async connect(): Promise<void> {
     const data = jzz.info()
-    console.log(data)
-     
-    console.log('DATA', data)
     return Promise.resolve();
   }
   createVirtualInputPort(name: string): VirtualNodeMIDIInput {
