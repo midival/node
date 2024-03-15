@@ -5,10 +5,10 @@ import {
   IMIDIOutput,
   UnregisterCallback,
 } from "@midival/core";
-import {
-  InputStateChangeCallback,
-  OutputStateChangeCallback,
-} from "@midival/core/dist/wrappers/access/IMIDIAccess";
+// import {
+//   type InputStateChangeCallback,
+//   type OutputStateChangeCallback,
+// } from "@midival/core";
 import { NodeMIDIInput } from "./NodeMIDIInput";
 import { NodeMIDIOutput } from "./NodeMIDIOutput";
 import { VirtualNodeMIDIInput } from "./VirtualNodeMIDIInput";
@@ -125,20 +125,20 @@ class NodeMIDIAccess implements IMIDIAccess {
     setTimeout(checkChanges, this._options.watchTimeout);
   }
 
-  onInputConnected(callback: InputStateChangeCallback): UnregisterCallback {
+  onInputConnected(callback): UnregisterCallback {
     this.watchInputs();
     return this._bus.on("input_connected", callback);
   }
-  onInputDisconnected(callback: InputStateChangeCallback): UnregisterCallback {
+  onInputDisconnected(callback): UnregisterCallback {
     this.watchInputs();
     return this._bus.on("input_disconnected", callback);
   }
-  onOutputConnected(callback: OutputStateChangeCallback): UnregisterCallback {
+  onOutputConnected(callback): UnregisterCallback {
     this.watchOutputs();
     return this._bus.on("output_conntected", callback);
   }
   onOutputDisconnected(
-    callback: OutputStateChangeCallback
+    callback
   ): UnregisterCallback {
     this.watchOutputs();
     return this._bus.on("output_disconnected", callback);

@@ -1,6 +1,4 @@
 import { IMIDIInput } from "@midival/core";
-import { NodeMIDIAccess } from "./NodeMIDIAccess";
-import { OnMessageCallback } from "@midival/core/dist/wrappers/inputs/IMIDIInput";
 import { UnregisterCallback } from "@midival/core";
 import type { Input } from "midi";
 
@@ -16,7 +14,7 @@ export class NodeMIDIInput implements IMIDIInput {
         this._input = input;
     }
 
-    async onMessage(callback: OnMessageCallback): Promise<UnregisterCallback> {
+    async onMessage(callback): Promise<UnregisterCallback> {
         let isActive = true;
         this._input.on("message", (deltaTime, message) => {
             if (!isActive) {
