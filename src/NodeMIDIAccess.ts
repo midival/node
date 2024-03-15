@@ -5,10 +5,6 @@ import {
   IMIDIOutput,
   UnregisterCallback,
 } from "@midival/core";
-// import {
-//   type InputStateChangeCallback,
-//   type OutputStateChangeCallback,
-// } from "@midival/core";
 import { NodeMIDIInput } from "./NodeMIDIInput";
 import { NodeMIDIOutput } from "./NodeMIDIOutput";
 import { VirtualNodeMIDIInput } from "./VirtualNodeMIDIInput";
@@ -30,9 +26,9 @@ const defaultOptions: NodeMidiOptions = {
 };
 
 interface Events {
-  input_connected: [NodeMIDIInput];
+  input_connected: [IMIDIInput];
   input_disconnected: [IMIDIInput];
-  output_conntected: [NodeMIDIOutput];
+  output_conntected: [IMIDIOutput];
   output_disconnected: [IMIDIOutput];
 }
 
@@ -63,35 +59,35 @@ class NodeMIDIAccess implements IMIDIAccess {
     this._options = options;
   }
 
-  // private watchInputs() {
-  //   if (this.isWatchingInputs) {
-  //     return;
-  //   }
-  //   if (!this._options.watchTimeout) {
-  //     return;
-  //   }
-  //   this.isWatchingInputs = true;
-  //   let prevInputs = this.inputs;
-  //   const checkChanges = () => {
-  //     const inputs = this.inputs;
-  //     inputs.forEach((input) => {
-  //       const pastInput = prevInputs.find((pIn) => pIn.name === input.name);
-  //       if (!pastInput) {
-  //         this._bus.trigger("input_connected", input);
-  //       }
-  //     });
-  //     prevInputs.forEach((prevIn, idx) => {
-  //       const newInp = inputs.find((nIn) => nIn.name === prevIn.name);
-  //       if (!newInp) {
-  //         this._bus.trigger("input_disconnected", prevIn);
-  //         this.midiInputs.delete(prevIn.name);
-  //       }
-  //     });
-  //     prevInputs = this.inputs;
-  //     setTimeout(checkChanges, this._options.watchTimeout);
-  //   };
-  //   setTimeout(checkChanges, this._options.watchTimeout);
-  // }
+  private watchInputs() {
+    if (this.isWatchingInputs) {
+      return;
+    }
+    if (!this._options.watchTimeout) {
+      return;
+    }
+    this.isWatchingInputs = true;
+    let prevInputs = this.inputs;
+    const checkChanges = () => {
+      const inputs = this.inputs;
+      inputs.forEach((input) => {
+        const pastInput = prevInputs.find((pIn) => pIn.name === input.name);
+        if (!pastInput) {
+          this._bus.trigger("input_connected", input);
+        }
+      });
+      prevInputs.forEach((prevIn, idx) => {
+        const newInp = inputs.find((nIn) => nIn.name === prevIn.name);
+        if (!newInp) {
+          this._bus.trigger("input_disconnected", prevIn);
+          this.midiInputs.delete(prevIn.name);
+        }
+      });
+      prevInputs = this.inputs;
+      setTimeout(checkChanges, this._options.watchTimeout);
+    };
+    setTimeout(checkChanges, this._options.watchTimeout);
+  }
 
   private watchOutputs() {
     if (this.isWatchingOutputs) {
@@ -127,11 +123,11 @@ class NodeMIDIAccess implements IMIDIAccess {
   }
 
   onInputConnected(callback: any): UnregisterCallback {
-    // this.watchInputs();
+    this.watchInputs();
     return this._bus.on("input_connected", callback);
   }
   onInputDisconnected(callback: any): UnregisterCallback {
-    // this.watchInputs();
+    this.watchInputs();
     return this._bus.on("input_disconnected", callback);
   }
   onOutputConnected(callback): UnregisterCallback {
