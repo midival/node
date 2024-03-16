@@ -5,20 +5,11 @@ import {
   IMIDIOutput,
   UnregisterCallback,
 } from "@midival/core";
-// import {
-//   type InputStateChangeCallback,
-//   type OutputStateChangeCallback,
-// } from "@midival/core";
 import { NodeMIDIInput } from "./NodeMIDIInput";
 import { NodeMIDIOutput } from "./NodeMIDIOutput";
 import { VirtualNodeMIDIInput } from "./VirtualNodeMIDIInput";
 import { VirtualNodeMIDIOutput } from "./VirtualNodeMIDIOutput";
-import { randomUUID } from "crypto";
-
-const range = (i: number) =>
-  Array.apply(null, Array(i)).map(function (_, i) {
-    return i;
-  });
+import jzz = require("jzz");
 
 export interface NodeMidiOptions {
   watchTimeout: number;
@@ -29,9 +20,9 @@ const defaultOptions: NodeMidiOptions = {
 };
 
 interface Events {
-  input_connected: [NodeMIDIInput];
+  input_connected: [IMIDIInput];
   input_disconnected: [IMIDIInput];
-  output_conntected: [NodeMIDIOutput];
+  output_conntected: [IMIDIOutput];
   output_disconnected: [IMIDIOutput];
 }
 
@@ -53,12 +44,14 @@ class NodeMIDIAccess implements IMIDIAccess {
   private isWatchingInputs: boolean = false;
   private isWatchingOutputs: boolean = false;
 
+  private midi: ReturnType<typeof jzz>
   static getMidiLibrary() {
     return this._midi;
   }
 
-  constructor(midi: any, options: NodeMidiOptions = defaultOptions) {
-    NodeMIDIAccess._midi = midi;
+  constructor(options: NodeMidiOptions = defaultOptions) {
+    this.midi = jzz();
+    NodeMIDIAccess._midi = this.midi
     this._options = options;
   }
 
@@ -102,6 +95,7 @@ class NodeMIDIAccess implements IMIDIAccess {
     this.isWatchingOutputs = true;
     let prevOutputs = this.outputs;
     const checkChanges = () => {
+      this.midi.refresh()
       const outputs = this.outputs;
       outputs.forEach((output, idx) => {
         const pastOutput = prevOutputs.find((pIn) => pIn.name === output.name);
@@ -125,11 +119,11 @@ class NodeMIDIAccess implements IMIDIAccess {
     setTimeout(checkChanges, this._options.watchTimeout);
   }
 
-  onInputConnected(callback): UnregisterCallback {
+  onInputConnected(callback: any): UnregisterCallback {
     this.watchInputs();
     return this._bus.on("input_connected", callback);
   }
-  onInputDisconnected(callback): UnregisterCallback {
+  onInputDisconnected(callback: any): UnregisterCallback {
     this.watchInputs();
     return this._bus.on("input_disconnected", callback);
   }
@@ -144,7 +138,8 @@ class NodeMIDIAccess implements IMIDIAccess {
     return this._bus.on("output_disconnected", callback);
   }
 
-  connect(): Promise<void> {
+  async connect(): Promise<void> {
+    const data = jzz.info()
     return Promise.resolve();
   }
   createVirtualInputPort(name: string): VirtualNodeMIDIInput {
@@ -169,45 +164,16 @@ class NodeMIDIAccess implements IMIDIAccess {
     return output;
   }
 
-  get inputs(): NodeMIDIInput[] {
-    const inputs = new (NodeMIDIAccess.getMidiLibrary().Input)();
-    const inputsNo = inputs.getPortCount();
-
-    return [
-      ...range(inputsNo).map((i: number) => {
-        const name = inputs.getPortName(i);
-        if (!this.midiInputs.has(name)) {
-          const input = new (NodeMIDIAccess.getMidiLibrary().Input)();
-          input.openPort(i);
-          this.midiInputs.set(
-            name,
-            new NodeMIDIInput(randomUUID(), name, input)
-          );
-        }
-        return this.midiInputs.get(name);
-      }),
-      ...this.virtualInputs,
-    ];
+  get inputs(): IMIDIInput[] {
+    const { inputs } = jzz.info()
+    return inputs
+      .map(({ id, name, manufacturer }) => new NodeMIDIInput(id, name, manufacturer))
   }
 
   get outputs(): NodeMIDIOutput[] {
-    const outputs = new (NodeMIDIAccess.getMidiLibrary().Output)();
-    const outputsNo = outputs.getPortCount();
-    return [
-      ...range(outputsNo).map((i: number) => {
-        const name = outputs.getPortName(i);
-        if (!this.midiOutputs.has(name)) {
-          const output = new (NodeMIDIAccess.getMidiLibrary().Output)();
-          output.openPort(i);
-          this.midiOutputs.set(
-            name,
-            new NodeMIDIOutput(randomUUID(), name, output)
-          );
-        }
-        return this.midiOutputs.get(name);
-      }),
-      ...this.virtualOutputs,
-    ];
+    const { outputs } = jzz.info()
+    return outputs
+      .map(({ id, name, manufacturer }) => new NodeMIDIOutput(id, name, manufacturer))
   }
 }
 

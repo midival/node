@@ -1,46 +1,40 @@
 import { IMIDIInput } from "@midival/core";
 import { UnregisterCallback } from "@midival/core";
 import type { Input } from "midi";
+import jzz = require("jzz");
 
 export class NodeMIDIInput implements IMIDIInput {
+    constructor(
+        public readonly id: string,
+        public readonly name: string,
+        public readonly manufacturer: string
+    ) {
+        // Connecting to input?
+        this.input
+    }
 
-    private _id: string;
-    private _input: Input;
-    private _name: string;
-
-    constructor(id: string, name: string, input: Input) {
-        this._id = id;
-        this._name = name;
-        this._input = input;
+    private _inp;
+    private get input() {
+        if (!this._inp) {
+            this._inp = jzz().openMidiIn(this.name)
+        }
+        return this._inp
     }
 
     async onMessage(callback): Promise<UnregisterCallback> {
+        const input = await this.input
         let isActive = true;
-        this._input.on("message", (deltaTime, message) => {
-            if (!isActive) {
-                return;
-            }
-            // FIXME: delta time should get recomputed to the actual time.
+
+        const cb = (msg) => {
             callback({
-                receivedTime: deltaTime,
-                data: Uint8Array.from(message),
-            });
-        });
+                receivedTime: Date.now(),
+                data: Uint8Array.from(msg)
+            })
+        }
+        const resp = await input.connect(cb)
 
         return () => {
-            isActive = false;
-        };
-    }
-
-    get id(): string {
-        return String(this._id);
-    }
-
-    get name(): string {
-        return this._name;
-    }
-
-    get manufacturer(): string {
-        return "Unknown";
+            input.disconnect(cb)
+        }
     }
 }
