@@ -2,6 +2,7 @@ import { IMIDIInput } from "@midival/core";
 import { UnregisterCallback } from "@midival/core";
 import type { Input } from "midi";
 import jzz = require("jzz");
+import type JZZ from 'jzz';
 
 export class NodeMIDIInput implements IMIDIInput {
     constructor(
@@ -22,8 +23,7 @@ export class NodeMIDIInput implements IMIDIInput {
     }
 
     async onMessage(callback): Promise<UnregisterCallback> {
-        const input = await this.input
-        let isActive = true;
+        const input = this.input
 
         const cb = (msg) => {
             callback({
@@ -31,7 +31,7 @@ export class NodeMIDIInput implements IMIDIInput {
                 data: Uint8Array.from(msg)
             })
         }
-        const resp = await input.connect(cb)
+        input.connect(cb)
 
         return () => {
             input.disconnect(cb)
